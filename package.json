@@ -58,5 +58,14 @@
         "webpack": "^5.72.1",
         "webpack-cli": "^4.9.2",
         "webpack-strip-block": "^0.3.0"
+    },
+    "dependencies": {
+        "assert": "^2.1.0",
+        "buffer": "^6.0.3",
+        "constants": "^0.0.2",
+        "module": "^1.2.5",
+        "os": "^0.1.2",
+        "patch-package": "^8.0.0",
+        "stream": "^0.0.3"
     }
 }

@@ -20,6 +20,11 @@ export interface KEM {
     ciphertextBytes: number;
     sharedSecretBytes: number;
 
+    keypair_seeded: (sharedSecret: Uint8Array) => Promise<{
+        publicKey: Uint8Array;
+        privateKey: Uint8Array;
+    }>;
+
     keypair: () => Promise<{
         publicKey: Uint8Array;
         privateKey: Uint8Array;
@@ -28,7 +33,19 @@ export interface KEM {
         ciphertext: Uint8Array;
         sharedSecret: Uint8Array;
     }>;
+    encapsulate_internal: (
+        publicKey: Uint8Array,
+        sharedSecret: Uint8Array
+    ) => Promise<{
+        ciphertext: Uint8Array;
+    }>;
     decapsulate: (
+        ciphertext: Uint8Array,
+        privateKey: Uint8Array
+    ) => Promise<{
+        sharedSecret: Uint8Array;
+    }>;
+    decapsulate_internal: (
         ciphertext: Uint8Array,
         privateKey: Uint8Array
     ) => Promise<{
@@ -116,6 +133,35 @@ async function kemBuilder(useFallback = false, wasmFilePath: string | undefined 
         ciphertextBytes,
         sharedSecretBytes,
 
+        keypair_seeded: async (sharedSecret) => {
+            const release = await bindingCallerMutex.lock();
+
+            const publicKeyBuffer = Module._malloc(publicKeyBytes);
+            const privateKeyBuffer = Module._malloc(privateKeyBytes);
+            const sharedSecretBuffer = Module._malloc(sharedSecretBytes);
+
+            Module.writeArrayToMemory(sharedSecret, sharedSecretBuffer);
+
+            try {
+                const returnValue: number = await Module.ccall(
+                    'kem_keypair_seeded',
+                    'number',
+                    ['number', 'number', 'number'],
+                    [publicKeyBuffer, privateKeyBuffer, sharedSecretBuffer],
+                    { async: true }
+                );
+                return dataReturn(returnValue, {
+                    publicKey: dataResult(publicKeyBuffer, publicKeyBytes),
+                    privateKey: dataResult(privateKeyBuffer, privateKeyBytes),
+                });
+            } finally {
+                release();
+                dataFree(publicKeyBuffer);
+                dataFree(privateKeyBuffer);
+            }
+        },
+
+
         keypair: async () => {
             const release = await bindingCallerMutex.lock();
 
@@ -170,6 +216,36 @@ async function kemBuilder(useFallback = false, wasmFilePath: string | undefined 
             }
         },
 
+        encapsulate_internal: async (publicKey, sharedSecret) => {
+            const release = await bindingCallerMutex.lock();
+
+            const ciphertextBuffer = Module._malloc(ciphertextBytes);
+            const sharedSecretBuffer = Module._malloc(sharedSecretBytes);
+            const publicKeyBuffer = Module._malloc(publicKeyBytes);
+
+            Module.writeArrayToMemory(publicKey, publicKeyBuffer);
+            Module.writeArrayToMemory(sharedSecret, sharedSecretBuffer);
+            
+
+            try {
+                const returnValue: number =  await Module.ccall(
+                    'kem_encapsulate_internal',
+                    'number',
+                    ['number', 'number', 'number'],
+                    [ciphertextBuffer, sharedSecretBuffer, publicKeyBuffer],
+                    { async: true }
+                );
+                return dataReturn(returnValue, {
+                    ciphertext: dataResult(ciphertextBuffer, ciphertextBytes),
+                });
+            } finally {
+                release();
+                dataFree(ciphertextBuffer);
+                dataFree(sharedSecretBuffer);
+                dataFree(publicKeyBuffer);
+            }
+        },
+
         decapsulate: async (ciphertext, privateKey) => {
             const release = await bindingCallerMutex.lock();
 
@@ -183,6 +259,35 @@ async function kemBuilder(useFallback = false, wasmFilePath: string | undefined 
             try {
                 const returnValue: number = await Module.ccall(
                     'kem_decapsulate',
+                    'number',
+                    ['number', 'number', 'number'],
+                    [sharedSecretBuffer, ciphertextBuffer, privateKeyBuffer],
+                    { async: true }
+                );
+                return dataReturn(returnValue, {
+                    sharedSecret: dataResult(sharedSecretBuffer, sharedSecretBytes),
+                });
+            } finally {
+                release();
+                dataFree(sharedSecretBuffer);
+                dataFree(ciphertextBuffer);
+                dataFree(privateKeyBuffer);
+            }
+        },
+
+        decapsulate_internal: async (ciphertext, privateKey) => {
+            const release = await bindingCallerMutex.lock();
+
+            const sharedSecretBuffer = Module._malloc(sharedSecretBytes);
+            const ciphertextBuffer = Module._malloc(ciphertextBytes);
+            const privateKeyBuffer = Module._malloc(privateKeyBytes);
+
+            Module.writeArrayToMemory(ciphertext, ciphertextBuffer);
+            Module.writeArrayToMemory(privateKey, privateKeyBuffer);
+
+            try {
+                const returnValue: number = await Module.ccall(
+                    'kem_decapsulate_internal',
                     'number',
                     ['number', 'number', 'number'],
                     [sharedSecretBuffer, ciphertextBuffer, privateKeyBuffer],

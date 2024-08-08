@@ -5,7 +5,7 @@ primitives:
 	npm run build && \
 	npm run test:primitives
 
-KEM := hqc-128 hqc-192 hqc-256 kyber1024 kyber512 kyber768 mceliece348864 mceliece348864f mceliece460896 mceliece460896f mceliece6688128 mceliece6688128f mceliece6960119 mceliece6960119f mceliece8192128 mceliece8192128f
+KEM := kyber1024 kyber512 kyber768 
 
 define make-kem-target
 kem-$1:

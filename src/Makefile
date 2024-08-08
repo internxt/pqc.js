@@ -41,9 +41,12 @@ kem: dependencies
 					_free, \
 					_malloc, \
 					_kem_init, \
+					_kem_keypair_seeded, \
 					_kem_keypair, \
 					_kem_encapsulate, \
 					_kem_decapsulate, \
+					_kem_encapsulate_internal, \
+					_kem_decapsulate_internal, \
 					_kem_public_key_bytes, \
 					_kem_private_key_bytes, \
 					_kem_ciphertext_bytes, \
@@ -155,7 +158,7 @@ primitives_tests: dependencies
 
 dependencies:
 	if [ ! -d "PQClean" ]; then \
-  		git clone -q --depth 1 https://github.com/PQClean/PQClean && \
+  		git clone -q --depth 1 https://github.com/internxt/PQClean && \
   		rm PQClean/common/randombytes.* && rm PQClean/common/aes.* && \
   		sed -ri "" "s/( sha[0-9]{3})\(/\1_deprecated(/g" PQClean/common/sha2.c; \
 	fi
