@@ -13,9 +13,13 @@
 #define KEM_CIPHERTEXTBYTES CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_CRYPTO_CIPHERTEXTBYTES)
 #define KEM_BYTES CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_CRYPTO_BYTES)
 
+
 #define KEM_KEYPAIR CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_crypto_kem_keypair)
 #define KEM_ENC CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_crypto_kem_enc)
 #define KEM_DEC CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_crypto_kem_dec)
+#define KEM_ENC_INTERNAL CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_crypto_kem_enc_internal)
+#define KEM_DEC_INTERNAL CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_crypto_kem_dec_internal)
+#define KEM_KEYPAIR_SEEDED CAT(PQCLEAN_,KEM_NAME_UPPERCASE,_CLEAN_crypto_kem_keypair_seeded)
 
 void kem_init() {
     randombytes_stir();
@@ -47,4 +51,16 @@ int kem_encapsulate(uint8_t *ciphertext, uint8_t *shared_secret, const uint8_t *
 
 int kem_decapsulate(uint8_t *shared_secret, const uint8_t *ciphertext, const uint8_t *private_key) {
     return KEM_DEC(shared_secret, ciphertext, private_key);
+}
+
+int kem_encapsulate_internal(uint8_t *ciphertext, const uint8_t *shared_secret, const uint8_t *public_key) {
+    return KEM_ENC_INTERNAL(ciphertext, shared_secret, public_key);
+}
+
+int kem_decapsulate_internal(uint8_t *shared_secret, const uint8_t *ciphertext, const uint8_t *private_key) {
+    return KEM_DEC_INTERNAL(shared_secret, ciphertext, private_key);
+}
+
+int kem_keypair_seeded(uint8_t *public_key, uint8_t *private_key, const uint8_t *coins) {
+    return KEM_KEYPAIR_SEEDED(public_key, private_key, coins);
 }

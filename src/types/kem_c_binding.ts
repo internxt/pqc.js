@@ -21,7 +21,10 @@ export interface KEM_C {
     _kem_ciphertext_bytes: () => number;
     _kem_shared_secret_bytes: () => number;
 
+    //_kem_keypair_seeded: (publicKeyBuffer: Pointer, privateKeyBuffer: Pointer) => number;
     //_kem_keypair: (publicKeyBuffer: Pointer, privateKeyBuffer: Pointer) => number;
     //_kem_encapsulate: (ciphertextBuffer: Pointer, sharedSecretBuffer: Pointer, publicKeyBuffer: Pointer) => number;
     //_kem_decapsulate: (sharedSecretBuffer: Pointer, ciphertextBuffer: Pointer, privateKeyBuffer: Pointer) => number;
+    //_kem_encapsulate_internal: (ciphertextBuffer: Pointer, sharedSecretBuffer: Pointer, publicKeyBuffer: Pointer) => number;
+    //_kem_decapsulate_internal: (sharedSecretBuffer: Pointer, ciphertextBuffer: Pointer, privateKeyBuffer: Pointer) => number;
 }
